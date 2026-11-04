@@ -1,7 +1,7 @@
 # cryptolab-ledger-seals
 
-Sellos diarios encadenados del registro de lecturas de CryptoLab, anclados en Bitcoin con
-[OpenTimestamps](https://opentimestamps.org).
+Sellos **horarios** (desde el 04/11/2026) y **diarios** encadenados del registro de lecturas de
+CryptoLab, anclados en Bitcoin con [OpenTimestamps](https://opentimestamps.org).
 
 Sirve para que cualquiera pueda comprobar dos cosas sin tener acceso a nuestros datos:
 
@@ -36,8 +36,80 @@ Sirve para que cualquiera pueda comprobar dos cosas sin tener acceso a nuestros 
 Antes de escribir un sello, el código comprueba una lista blanca de campos y tipos. Si aparece
 cualquier otra cosa, el sello no se escribe ni se publica.
 
-El repositorio contiene **solo** `seals/AAAA-MM-DD.json`, `seals/AAAA-MM-DD.json.ots` y este
-README.
+El repositorio contiene **solo** estos ficheros:
+
+- `seals/AAAA-MM-DD.json` y su `.ots`: diarios;
+- `seals/horas/AAAA-MM-DD/HH.json` y su `.ots`: horarios;
+- este README.
+
+## Sellos horarios (desde 2026-11-04 00:00 UTC)
+
+Cada hora UTC se sella lo **capturado** en `[HH:00, HH+1:00)`, unos 7 minutos después de terminar
+la hora. **También las horas sin lecturas**, de modo que un hueco en la secuencia solo puede ser un
+fallo y es visible.
+
+Campos de un sello horario:
+
+| Campo | Contenido |
+|---|---|
+| `seal_hour` | inicio de la hora sellada (UTC) |
+| `sealed_at` | cuándo se calculó |
+| `judge_rows`, `layer_rows` | recuentos |
+| `judge_digest`, `layer_digest` | igual que en el diario, pero sobre esa hora. En una hora vacía valen `H("vacio", seal_hour)` |
+| `prev_hourly_seal_hash` | sello horario anterior |
+| `seal_hash` | `H("h1", seal_hour, judge_digest, layer_digest, prev_hourly_seal_hash or "")` |
+| `algoritmo` | `v2-horario…` |
+
+**Diario v2** (desde el primer día completo de sellos horarios). Añade `hourly_count = 24` y
+`hourly_digest = H(seal_hash de las horas 00…23)`, y
+`seal_hash = H("d2", seal_date, judge_digest, layer_digest, hourly_digest, prev_seal_hash or "")`.
+Su `prev_seal_hash` sigue la misma cadena diaria: el primer diario v2 apunta al último v1.
+
+**Las horas del 04/11 anteriores a la activación (00:00–05:00) se sellaron con retraso**, a las
+06:04 UTC. Por la regla de abajo, las lecturas de esas horas no cuentan como ancladas antes de su
+resultado a 4 h.
+
+## Regla «anclada antes del resultado» (`cl-anchor-before-outcome-v1`)
+
+Una lectura cuenta como **verificable externamente** para un horizonte h solo si cumple
+`T_ancla + 2 h ≤ G + h`, donde:
+
+- `G` es la hora de la lectura;
+- `T_ancla` es el `time` del bloque de Bitcoin de **menor altura** que ancla el sello **horario**
+  que la contiene;
+- **2 h** es el margen: Bitcoin acepta cabeceras con hasta 2 h de adelanto.
+
+Las demás quedan en NO, PENDIENTE (todavía sin anclaje) o NO_APLICA (sin sello horario), y nunca
+se suman a las verificables. Texto completo del fichero de la regla (sha256
+`d6be9196bd46bb51dc27732e3c2e44bc1211a612188d9b1e4a1ff092b444a8e9`, anclado con OpenTimestamps el
+04/11):
+
+<details><summary><code>regla_anclaje_v1.json</code></summary>
+
+```json
+{
+  "rule_id": "cl-anchor-before-outcome-v1",
+  "status": "SELLADA_ANTES_DE_IMPLEMENTAR_Y_DE_VER_ANCLAJES_HORARIOS",
+  "unidad": "cada lectura canónica de research.layer_ledger_v1 (is_canonical_public = true) y cada veredicto de research.forecast_ledger_v1",
+  "G": {"capas": "generated_at", "judge": "judge_generated_at"},
+  "horizontes_h": {"technical": [4], "onchain": [24], "macro": [24], "judge": [24, 4]},
+  "sello_que_la_contiene": "el sello HORARIO de la hora UTC [HH:00, HH+1:00) que contiene captured_at de la fila; la fila tiene que estar incluida en su digest (comprobable recalculando con las filas)",
+  "momento_que_cuenta": {
+    "T_ancla": "campo 'time' de la cabecera del bloque de Bitcoin de MENOR altura entre las atestaciones BitcoinBlockHeaderAttestation del .ots de ese sello horario",
+    "validez_de_la_atestacion": "la raíz de Merkle que da la prueba debe coincidir con la 'merkleroot' de la cabecera de esa altura, según un nodo completo propio y al menos un explorador público independiente (blockstream.info o mempool.space)"
+  },
+  "margen": {
+    "M_horas": 2,
+    "motivo": "la regla de consenso de Bitcoin admite cabeceras con 'time' hasta 2 h por delante del tiempo ajustado de la red, y 'time' puede quedar por detrás del momento real de minado; se descuenta 2 h a favor de la duda"
+  },
+  "regla": "anclada_antes_del_resultado(h) = SI  si  T_ancla + M <= G + h ;  NO  si T_ancla + M > G + h ;  PENDIENTE si el .ots aún no tiene atestación de Bitcoin (se resuelve en cuanto llegue: si llega tarde, queda NO para siempre) ;  NO_APLICA si la fila no está en un sello horario (capturas anteriores a la activación de los sellos horarios o a fallos sin recuperar)",
+  "uso_publico": "SOLO las lecturas con anclada_antes_del_resultado(h) = SI cuentan como «verificables externamente» para ese horizonte. El resto se muestra aparte (con su recuento) y nunca se suma",
+  "descriptivo_no_cuenta": "se informa también la proporción con M = 0, solo como contexto",
+  "inmutabilidad": "la evaluación de cada lectura se guarda (append-only) cuando su sello tiene atestación; un cambio de regla sería cl-anchor-before-outcome-v2 con fecha y sello propios, sin reevaluar en silencio"
+}
+```
+
+</details>
 
 ## Cómo verificar
 
@@ -240,3 +312,6 @@ corrigen con commits nuevos y se anotan aquí.
 | 2026-11-04 04:33 | `b0ebfac` | `.ots` del 03/11 completado: bloques 974 473 y 974 476. **Error**: subió también `seals/2026-11-03.json.ots.bak`, la copia que `ots upgrade` deja del `.ots` pendiente anterior. No contenía datos, solo esa prueba antigua |
 | 2026-11-04 05:12 | `1443236` | README: verificación en el navegador y script alternativo |
 | 2026-11-04 05:13 | **`06f269b`** | **Retirado `seals/2026-11-03.json.ots.bak`.** Desde aquí la rutina solo publica `README.md`, `seals/*.json` y `seals/*.json.ots`. El `.bak` sigue visible en el historial de `b0ebfac`, **intencionadamente: no se reescribe el historial** |
+| 2026-11-04 05:22 | `3760733` | Registro de cambios y regla `cl-anchor-before-outcome-v1` anunciada por su hash |
+| 2026-11-04 06:04 | `6dee929` | **Primeros sellos horarios**: 04/11, de 00:00 a 05:00, sellados con retraso porque son anteriores a la activación |
+| 2026-11-04 06:1x | (este) | README: sellos horarios, diario v2 y texto completo de la regla |
