@@ -40,7 +40,33 @@ El repositorio contiene **solo** estos ficheros:
 
 - `seals/AAAA-MM-DD.json` y su `.ots`: diarios;
 - `seals/horas/AAAA-MM-DD/HH.json` y su `.ots`: horarios;
+- `adendas/AAAA-MM-DD_<nombre>.json` y su `.ots`: el **hash** de un documento interno (una adenda
+  sellada **antes** del hecho que declara), con su fecha de sellado. Sin el texto del documento
+  (ver la nota de abajo: hoy no están en `main`);
 - este README.
+
+## Adendas y cadena canónica
+
+Las adendas y los criterios internos se encadenan en un registro propio, `SELLOS.txt`. Cada
+bloque nuevo lleva el sha256 de todo lo anterior, de modo que reescribir un bloque viejo rompe la
+cadena. Ese registro no se publica, pero el hash de cada adenda que afecta a lo que se publica aquí
+va a `adendas/` y se ancla en Bitcoin con su `.ots`.
+
+| Adenda | sha256 del documento | Dónde está | Qué declara |
+|---|---|---|---|
+| P4-H, despliegue de C0 | `5f69062eff944e7738b5d567c877764146f197e1b72b9100e3a1be18d076e23e` (sellada 2026-11-04 15:35:52 UTC) | [`adendas/2026-11-04_p4h_despliegue_c0.json`](https://github.com/Cryptolabdesk/cryptolab-ledger-seals/blob/659ef24d0abebcea7e6bead93a14cb1fab43a4bb/adendas/2026-11-04_p4h_despliegue_c0.json) y su `.ots`, en el commit `659ef24` | El cambio de versión del Técnico del 05/11 se declara antes: no es una anomalía de la vigilancia P4-H |
+
+**Nota 1 (04/11/2026): `adendas/` no está ahora en `main`.** La rutina automática de sellos
+solo conserva `README.md` y `seals/`, y en su pasada de las 17:07 UTC (`c770e72`) retiró la adenda
+publicada a las 16:29. **Sigue en el historial, que no se reescribe**: el enlace de arriba apunta
+al commit fijo `659ef24`. La rutina se corregirá para conservar `adendas/` (cambio A0, previsto
+para el 07/11), y entonces se repondrá el fichero.
+
+**Nota 2 (04/11/2026): cadena canónica.** La copia de `SELLOS.txt` del servidor no tiene todavía
+los bloques sellados desde las 15:35 UTC del 04/11: el fichero está protegido contra escritura y se
+completará a mano. **Mientras tanto, la cadena canónica es la copia local de `SELLOS.txt` más
+`adendas/` con sus `.ots`.** La copia del servidor es un prefijo exacto de la local (sha256
+`397be018…`), y solo le faltan esos bloques. Esta nota se retira cuando las dos copias coincidan.
 
 ## Sellos horarios (desde 2026-11-04 00:00 UTC)
 
@@ -298,6 +324,7 @@ se pueden comprobar los pasos 2 a 4, pero no los digests.
 | Regla | sha256 del fichero | Anclada | Qué decide |
 |---|---|---|---|
 | `cl-anchor-before-outcome-v1` | `d6be9196bd46bb51dc27732e3c2e44bc1211a612188d9b1e4a1ff092b444a8e9` | OpenTimestamps, 2026-11-04 ~05:22 UTC | Cuándo una lectura cuenta como **anclada antes de su resultado**: el bloque de Bitcoin que ancla su sello horario, más **2 h de margen**, tiene que ser anterior a la hora de la lectura más su horizonte. Se publicará el fichero completo junto con los sellos horarios |
+| Vigilancia P4-H2 (preregistro) | `18c7e0dc2c2194800643550012d72f804dbd98cb71c0ca17fc87b3b863b45726` | OpenTimestamps, 2026-11-04 18:40:28 UTC (antes de aplicar ningún cambio) | La primera vigilancia, P4-H, **no cumplió** su criterio C4, «repositorio igual al local en al menos 47 de 48 chequeos», por una incidencia de GitHub del 04/11. P4-H2 cuenta **7 días seguidos** desde la corrección. Un fallo de sincronía solo se perdona si coincide con una incidencia de GitHub documentada en el momento **y** todo se sube en orden en ≤ 2 h. Cualquier otro fallo reinicia la cuenta |
 
 ## Registro de cambios
 
@@ -314,4 +341,8 @@ corrigen con commits nuevos y se anotan aquí.
 | 2026-11-04 05:13 | **`06f269b`** | **Retirado `seals/2026-11-03.json.ots.bak`.** Desde aquí la rutina solo publica `README.md`, `seals/*.json` y `seals/*.json.ots`. El `.bak` sigue visible en el historial de `b0ebfac`, **intencionadamente: no se reescribe el historial** |
 | 2026-11-04 05:22 | `3760733` | Registro de cambios y regla `cl-anchor-before-outcome-v1` anunciada por su hash |
 | 2026-11-04 06:04 | `6dee929` | **Primeros sellos horarios**: 04/11, de 00:00 a 05:00, sellados con retraso porque son anteriores a la activación |
-| 2026-11-04 06:1x | (este) | README: sellos horarios, diario v2 y texto completo de la regla |
+| 2026-11-04 06:1x | `52082f4` | README: sellos horarios, diario v2 y texto completo de la regla |
+| 2026-11-04 10:07 | — | **Subida fallida** durante la incidencia de GitHub en operaciones Git (09:49–11:30 UTC). El commit de los sellos de las 10:07 (`bf22811`) llegó con el de las 11:07 (`333164c`). No se perdió ni cambió ningún sello. La vigilancia P4-H lo contó como desincronía a las 10:20 (real) y a las 11:20 (error de medición: la consulta falló y no guardaba el mensaje de error) |
+| 2026-11-04 16:29 | `659ef24` | Primera adenda: `adendas/2026-11-04_p4h_despliegue_c0.json` (hash `5f69062e…` de la adenda P4-H, sellada a las 15:35:52) y su `.ots`. Este commit lleva otro autor (`cryptolab-ledger`) que los sellos automáticos (`cryptolab-ledger-seals`) porque se hizo a mano; el contenido es el mismo tipo de fichero permitido |
+| 2026-11-04 17:07 | **`c770e72`** | **Error: la rutina de sellos retiró `adendas/`**, porque solo conserva `README.md` y `seals/`. La adenda sigue en `659ef24` (ver «Adendas y cadena canónica»). Se corrige con el cambio A0 |
+| 2026-11-04 18:4x | (este) | README: adendas, cadena canónica, la retirada de `c770e72` y el preregistro de P4-H2 |
