@@ -220,3 +220,23 @@ Los objetos JSON se serializan con claves ordenadas, sin espacios y con `ensure_
 Las filas de origen están en un registro **append-only**: la base de datos rechaza UPDATE y DELETE.
 Pueden mostrarse a un auditor para que recalcule `judge_digest` y `layer_digest`. Sin esas filas
 se pueden comprobar los pasos 2 a 4, pero no los digests.
+
+## Reglas anunciadas
+
+| Regla | sha256 del fichero | Anclada | Qué decide |
+|---|---|---|---|
+| `cl-anchor-before-outcome-v1` | `d6be9196bd46bb51dc27732e3c2e44bc1211a612188d9b1e4a1ff092b444a8e9` | OpenTimestamps, 2026-11-04 ~05:22 UTC | Cuándo una lectura cuenta como **anclada antes de su resultado**: el bloque de Bitcoin que ancla su sello horario, más **2 h de margen**, tiene que ser anterior a la hora de la lectura más su horizonte. Se publicará el fichero completo junto con los sellos horarios |
+
+## Registro de cambios
+
+Este repositorio **no reescribe su historial**: ni force-push ni commits borrados. Los errores se
+corrigen con commits nuevos y se anotan aquí.
+
+| Fecha (UTC) | Commit | Cambio |
+|---|---|---|
+| 2026-11-04 03:42 | `e0453a5` | README inicial |
+| 2026-11-04 03:43 | `c040301` | Primer sello (`2026-11-03`), con su `.ots` pendiente de Bitcoin |
+| 2026-11-04 04:29 | `0a4cb14` | README: cómo verificar |
+| 2026-11-04 04:33 | `b0ebfac` | `.ots` del 03/11 completado: bloques 974 473 y 974 476. **Error**: subió también `seals/2026-11-03.json.ots.bak`, la copia que `ots upgrade` deja del `.ots` pendiente anterior. No contenía datos, solo esa prueba antigua |
+| 2026-11-04 05:12 | `1443236` | README: verificación en el navegador y script alternativo |
+| 2026-11-04 05:13 | **`06f269b`** | **Retirado `seals/2026-11-03.json.ots.bak`.** Desde aquí la rutina solo publica `README.md`, `seals/*.json` y `seals/*.json.ots`. El `.bak` sigue visible en el historial de `b0ebfac`, **intencionadamente: no se reescribe el historial** |
