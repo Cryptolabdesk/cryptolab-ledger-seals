@@ -41,9 +41,32 @@ README.
 
 ## Cómo verificar
 
-Ejemplo con el sello del **03/11/2026**.
+Ejemplo con el sello del **03/11/2026**. Hay tres formas de verificar el anclaje (A, B o C); D comprueba además la cadena:
 
-### 1. Descargar el sello y su prueba
+- **A. En el navegador**, sin instalar nada: sirve en Windows, macOS, Linux o el móvil.
+- **B. Con la línea de comandos** de OpenTimestamps.
+- **C. Con un script de Python**, si la línea de comandos no arranca, por ejemplo en Windows.
+
+### A. Verificación en el navegador (opentimestamps.org)
+
+1. Descarga los dos ficheros desde GitHub: abre cada uno y pulsa *Download raw file*.
+   - [`seals/2026-11-03.json`](seals/2026-11-03.json)
+   - [`seals/2026-11-03.json.ots`](seals/2026-11-03.json.ots)
+2. Abre <https://opentimestamps.org> y, en **Stamp & Verify**, arrastra el fichero
+   **`2026-11-03.json.ots`** («an .ots proof file to verify»).
+3. Cuando la página lo pida, arrastra el fichero original **`2026-11-03.json`**. El hash se calcula
+   en tu navegador: el fichero no se sube a ningún sitio.
+4. La página muestra el bloque de Bitcoin que lo atestigua y la fecha. Para este sello son los
+   bloques **974 473** (2026-11-04 04:04:33 UTC) y **974 476** (04:08:09 UTC).
+
+Si arrastras un JSON distinto, o cambias un solo carácter, la verificación falla.
+
+**No abras ni guardes el JSON con un editor antes de verificarlo**: un salto de línea o un cambio de
+codificación alteran el hash. Usa la descarga directa.
+
+### B. Verificación con la línea de comandos
+
+#### 1. Descargar el sello y su prueba
 
 ```bash
 B=https://raw.githubusercontent.com/Cryptolabdesk/cryptolab-ledger-seals/main
@@ -51,7 +74,7 @@ curl -sLO "$B/seals/2026-11-03.json"
 curl -sLO "$B/seals/2026-11-03.json.ots"
 ```
 
-### 2. Recalcular el hash del fichero
+#### 2. Recalcular el hash del fichero
 
 ```bash
 sha256sum 2026-11-03.json
@@ -68,7 +91,7 @@ ots info 2026-11-03.json.ots | head -1
 # File sha256 hash: db32f84f329a60ec7bb9c65cefd48d041e173d9d564d42daef7cfb400118ed7f
 ```
 
-### 3. Verificar el anclaje en Bitcoin
+#### 3. Verificar el anclaje en Bitcoin
 
 **Con un nodo de Bitcoin propio** (`bitcoind` en local, o con `--bitcoin-node`):
 
@@ -92,11 +115,80 @@ curl -s https://blockstream.info/api/block-height/<altura>
 curl -s https://blockstream.info/api/block/<hash>
 ```
 
-El anclaje en Bitcoin tarda unas horas desde que se crea el sello. Mientras no llega, `ots verify`
-dice `Pending confirmation`, y la prueba de este repositorio se actualiza en la ejecución de la
-noche siguiente.
+El anclaje en Bitcoin tarda desde unos minutos hasta unas horas desde que se crea el sello.
+Mientras no llega, `ots verify` dice `Pending confirmation`, y la prueba de este repositorio se
+actualiza en la siguiente ejecución.
 
-### 4. Recalcular `seal_hash` y comprobar la cadena
+### C. Alternativa: script de Python
+
+Usa la librería `opentimestamps` (sin la CLI, que en Windows suele fallar por una librería nativa).
+Hace tres cosas:
+
+- comprueba el hash del fichero;
+- completa la prueba consultando los calendarios;
+- compara la raíz de Merkle con el bloque en dos exploradores independientes, blockstream.info y
+  mempool.space.
+
+```bash
+pip install opentimestamps
+python verificar_ots.py 2026-11-03.json 2026-11-03.json.ots
+```
+
+<details><summary><code>verificar_ots.py</code></summary>
+
+```python
+import hashlib, json, sys, urllib.request, datetime as dt
+from opentimestamps.core.timestamp import DetachedTimestampFile
+from opentimestamps.core.serialize import StreamDeserializationContext
+from opentimestamps.core.notary import PendingAttestation, BitcoinBlockHeaderAttestation
+from opentimestamps.calendar import RemoteCalendar
+
+def walk(ts):
+    yield ts
+    for st in ts.ops.values():
+        yield from walk(st)
+
+def get(url):
+    req = urllib.request.Request(url, headers={"User-Agent": "ledger-seals-verify"})
+    with urllib.request.urlopen(req, timeout=20) as r:
+        return r.read().decode()
+
+fjson, fots = sys.argv[1], sys.argv[2]
+data = open(fjson, "rb").read()
+with open(fots, "rb") as f:
+    dtf = DetachedTimestampFile.deserialize(StreamDeserializationContext(f))
+print("hash del JSON coincide con el .ots:", hashlib.sha256(data).digest() == dtf.file_digest)
+for st in walk(dtf.timestamp):                      # completa lo pendiente con los calendarios
+    for att in list(st.attestations):
+        if isinstance(att, PendingAttestation):
+            try:
+                st.merge(RemoteCalendar(att.uri).get_timestamp(st.msg))
+            except Exception:
+                pass
+for msg, att in dtf.timestamp.all_attestations():
+    if isinstance(att, BitcoinBlockHeaderAttestation):
+        raiz = msg[::-1].hex()
+        for base in ("https://blockstream.info/api", "https://mempool.space/api"):
+            h = get(f"{base}/block-height/{att.height}").strip()
+            b = json.loads(get(f"{base}/block/{h}"))
+            hora = dt.datetime.fromtimestamp(b["timestamp"], dt.timezone.utc)
+            print(f"bloque {att.height} ({hora:%Y-%m-%d %H:%M:%S} UTC) en {base.split('/')[2]}: "
+                  f"{'COINCIDE' if b['merkle_root'] == raiz else 'NO COINCIDE'}")
+```
+
+</details>
+
+Salida esperada con el sello del 03/11:
+
+```
+hash del JSON coincide con el .ots: True
+bloque 974476 (2026-11-04 04:08:09 UTC) en blockstream.info: COINCIDE
+bloque 974476 (2026-11-04 04:08:09 UTC) en mempool.space: COINCIDE
+bloque 974473 (2026-11-04 04:04:33 UTC) en blockstream.info: COINCIDE
+bloque 974473 (2026-11-04 04:04:33 UTC) en mempool.space: COINCIDE
+```
+
+### D. Recalcular `seal_hash` y comprobar la cadena
 
 `H(p1, …, pn)` es el SHA-256 de cada parte en UTF-8 seguida del byte `0x1f`.
 
