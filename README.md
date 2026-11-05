@@ -349,6 +349,23 @@ se pueden comprobar los pasos 2 a 4, pero no los digests.
 | `cl-anchor-before-outcome-v1` | `d6be9196bd46bb51dc27732e3c2e44bc1211a612188d9b1e4a1ff092b444a8e9` | OpenTimestamps, 2026-11-04 ~05:22 UTC | Cuándo una lectura cuenta como **anclada antes de su resultado**: el bloque de Bitcoin que ancla su sello horario, más **2 h de margen**, tiene que ser anterior a la hora de la lectura más su horizonte. Se publicará el fichero completo junto con los sellos horarios |
 | Vigilancia P4-H2 (preregistro) | `18c7e0dc2c2194800643550012d72f804dbd98cb71c0ca17fc87b3b863b45726` | OpenTimestamps, 2026-11-04 18:40:28 UTC (antes de aplicar ningún cambio) | La primera vigilancia, P4-H, **no cumplió** su criterio C4, «repositorio igual al local en al menos 47 de 48 chequeos», por una incidencia de GitHub del 04/11. P4-H2 cuenta **7 días seguidos** desde la corrección. Un fallo de sincronía solo se perdona si coincide con una incidencia de GitHub documentada en el momento **y** todo se sube en orden en ≤ 2 h. Cualquier otro fallo reinicia la cuenta |
 
+## Registro de proceso
+
+Lo que no salió bien en nuestras pruebas, contado aunque no nos favorezca. Es una copia **literal**
+de un apartado de nuestra bitácora pública (`publico/BITACORA_PUBLICA.md`, sha256
+`5d19e28ad8763ab9f756f64ad68a6aa2b1d285242e40bb6e3a69584c72131774`, sellado en nuestra cadena interna
+el 2026-11-05 a las 18:26:42 UTC). **La bitácora completa se publicará tras la revisión legal.**
+
+- **La prueba de C0b v1.2 (adenda 2, 05/11/2026) falló, y esa versión no se despliega.** La
+  hicimos en corridas de prueba, sin publicar nada, y la revisó a ciegas un lector independiente
+  que no sabía qué texto venía de producción y cuál de la versión nueva.
+  - **Signo del flujo neto: bien.** Los textos de la versión nueva no tuvieron ningún error de
+    signo. Sí lo tuvieron 3 de los 7 textos de producción usados como comparación.
+  - **Falló en dos puntos.** Un texto daba por ausentes las comisiones de la mempool, que sí
+    estaban en los datos. Además, el filtro nuevo quitó una frase que era verdadera.
+  - **Lo que no pudimos comprobar.** El caso con flujo neto negativo no llegó a probarse, por un
+    defecto en su preparación.
+
 ## Registro de cambios
 
 Este repositorio **no reescribe su historial**: ni force-push ni commits borrados. Los errores se
@@ -369,4 +386,5 @@ corrigen con commits nuevos y se anotan aquí.
 | 2026-11-04 16:29 | `659ef24` | Primera adenda: `adendas/2026-11-04_p4h_despliegue_c0.json` (hash `5f69062e…` de la adenda P4-H, sellada a las 15:35:52) y su `.ots`. Este commit lleva otro autor (`cryptolab-ledger`) que los sellos automáticos (`cryptolab-ledger-seals`) porque se hizo a mano; el contenido es el mismo tipo de fichero permitido |
 | 2026-11-04 17:07 | **`c770e72`** | **Error: la rutina de sellos retiró `adendas/`**, porque solo conserva `README.md` y `seals/`. La adenda sigue en `659ef24` (ver «Adendas y cadena canónica»). Se corrige con el cambio A0 |
 | 2026-11-04 18:4x | `1f865dc` | README: adendas, cadena canónica, la retirada de `c770e72` y el preregistro de P4-H2 |
-| 2026-11-05 04:5x | (este) | **Corrección**: la frase de `1f865dc` sobre las horas 00:00–05:00 del 04/11 era incorrecta (la regla nunca tuvo un corte por activación). Se añaden la ventana de exposición y la hora tardía, como presentación |
+| 2026-11-05 04:46 | `fc689dc` | **Corrección**: la frase de `1f865dc` sobre las horas 00:00–05:00 del 04/11 era incorrecta (la regla nunca tuvo un corte por activación). Se añaden la ventana de exposición y la hora tardía, como presentación |
+| 2026-11-05 18:2x | (este) | Nueva sección «Registro de proceso»: copia literal del apartado de la bitácora pública sobre la prueba de C0b v1.2 (falló; esa versión no se despliega). La bitácora completa se publicará tras la revisión legal |
