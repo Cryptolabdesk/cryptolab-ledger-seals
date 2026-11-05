@@ -353,24 +353,36 @@ se pueden comprobar los pasos 2 a 4, pero no los digests.
 | Regla | sha256 del fichero | Anclada | Qué decide |
 |---|---|---|---|
 | `cl-anchor-before-outcome-v1` | `d6be9196bd46bb51dc27732e3c2e44bc1211a612188d9b1e4a1ff092b444a8e9` | OpenTimestamps, 2026-11-04 ~05:22 UTC | Cuándo una lectura cuenta como **anclada antes de su resultado**: el bloque de Bitcoin que ancla su sello horario, más **2 h de margen**, tiene que ser anterior a la hora de la lectura más su horizonte. Se publicará el fichero completo junto con los sellos horarios |
-| Vigilancia P4-H2 (preregistro) | `18c7e0dc2c2194800643550012d72f804dbd98cb71c0ca17fc87b3b863b45726` | OpenTimestamps, 2026-11-04 18:40:28 UTC (antes de aplicar ningún cambio) | La primera vigilancia, P4-H, **no cumplió** su criterio C4, «repositorio igual al local en al menos 47 de 48 chequeos», por una incidencia de GitHub del 04/11. P4-H2 cuenta **7 días seguidos** desde la corrección. Un fallo de sincronía solo se perdona si coincide con una incidencia de GitHub documentada en el momento **y** todo se sube en orden en ≤ 2 h. Cualquier otro fallo reinicia la cuenta |
+| Vigilancia P4-H2 (preregistro) | `18c7e0dc2c2194800643550012d72f804dbd98cb71c0ca17fc87b3b863b45726` | OpenTimestamps, 2026-11-04 18:40:28 UTC (antes de aplicar ningún cambio) | La primera vigilancia, P4-H, **no cumplió** su criterio C4, «repositorio igual al local en al menos 47 de 48 chequeos», por una incidencia de GitHub del 04/11. P4-H2 cuenta **7 días seguidos** desde la corrección. Un fallo de sincronía solo se perdona si coincide con una incidencia de GitHub documentada en el momento **y** todo se sube en orden en ≤ 2 h. Cualquier otro fallo reinicia la cuenta. Adenda 1 (sha256 `4282f45c65eb9d784a0fef13ee0126f781726fed7b6310fb496b70714d9e49d0`), sellada el 2026-11-05 a las 00:38:23 UTC; sus ficheros se publicarán con A0 (previsto el sábado 07/11) |
 
 ## Registro de proceso
 
 Lo que no salió bien en nuestras pruebas, contado aunque no nos favorezca. Es una copia **literal**
-de un apartado de nuestra bitácora pública (`publico/BITACORA_PUBLICA.md`, sha256
-`5d19e28ad8763ab9f756f64ad68a6aa2b1d285242e40bb6e3a69584c72131774`, sellado en nuestra cadena interna
-el 2026-11-05 a las 18:26:42 UTC). **La bitácora completa se publicará tras la revisión legal.**
+de un apartado de nuestra bitácora pública, `publico/BITACORA_PUBLICA.md`. Ese fichero es interno y
+todavía no es público; su sha256 sirve para comprobar después que lo publicado no cambió:
+`a6e135a1915a8ac721e3814df0242ac1bc7ae39b70b36b5c3d8eec63b7cad684`, sellado en nuestra cadena interna el 2026-11-05 a las 19:47:59 UTC. La versión anterior del
+apartado (bitácora `5d19e28ad8763ab9f756f64ad68a6aa2b1d285242e40bb6e3a69584c72131774`, publicada en
+`a6745f4`) queda en el historial. **La bitácora completa se publicará tras la revisión legal.**
 
-- **La prueba de C0b v1.2 (adenda 2, 05/11/2026) falló, y esa versión no se despliega.** La
-  hicimos en corridas de prueba, sin publicar nada, y la revisó a ciegas un lector independiente
-  que no sabía qué texto venía de producción y cuál de la versión nueva.
-  - **Signo del flujo neto: bien.** Los textos de la versión nueva no tuvieron ningún error de
-    signo. Sí lo tuvieron 3 de los 7 textos de producción usados como comparación.
-  - **Falló en dos puntos.** Un texto daba por ausentes las comisiones de la mempool, que sí
-    estaban en los datos. Además, el filtro nuevo quitó una frase que era verdadera.
-  - **Lo que no pudimos comprobar.** El caso con flujo neto negativo no llegó a probarse, por un
-    defecto en su preparación.
+- **La prueba de C0b v1.2 (adenda 2, 05/11/2026) falló, y esa versión no se despliega.** Se hizo en
+  corridas de prueba, sin publicar nada. La revisó a ciegas un lector independiente (otro modelo), que
+  no sabía qué texto venía de producción y cuál de la versión nueva.
+  - **Antes, la versión 1.1 también falló la revisión independiente**, por un error de signo del flujo
+    neto. Nuestra primera revisión, hecha por quien construyó la versión, no lo detectó.
+  - **Signo del flujo neto con v1.2.** Tras el filtro, ningún texto de la versión nueva tuvo error de
+    signo; el filtro quitó uno que había escrito el modelo. Sí lo tuvieron 3 de los 7 textos de
+    producción usados como comparación, pero 2 de esos 3 casos se eligieron justamente por haber
+    publicado ese error, así que no es una tasa.
+  - **Falló en dos puntos.** Un texto decía que faltaban datos de la mempool. Estaban en el corte, pero
+    ese agente no los recibía, por un defecto de construcción nuestro que documentamos aparte. Además,
+    el filtro nuevo quitó una frase que era verdadera.
+  - **No pudimos comprobar el caso con flujo neto negativo**, por un defecto en su preparación.
+  - **Desviación de proceso, ya documentada:** el orden de entrega de los paquetes de la lectura
+    principal y de K-FP(b) no quedó registrado. No cambia el veredicto.
+
+  *Corrección del 05/11/2026:* la frase sobre la mempool reemplaza a la del commit `a6745f4` («Un texto
+  daba por ausentes las comisiones de la mempool, que sí estaban en los datos»). El dato sí estaba en
+  el corte, pero no llegaba al agente que escribió esa frase.
 
 ## Registro de cambios
 
