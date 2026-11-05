@@ -91,9 +91,32 @@ Campos de un sello horario:
 `seal_hash = H("d2", seal_date, judge_digest, layer_digest, hourly_digest, prev_seal_hash or "")`.
 Su `prev_seal_hash` sigue la misma cadena diaria: el primer diario v2 apunta al último v1.
 
-**Las horas del 04/11 anteriores a la activación (00:00–05:00) se sellaron con retraso**, a las
-06:04 UTC. Por la regla de abajo, las lecturas de esas horas no cuentan como ancladas antes de su
-resultado a 4 h.
+Las horas del 04/11 de 00:00 a 05:00 se sellaron todas a las 06:04 UTC. **Cada lectura se evalúa
+con la regla de abajo, sin excepciones.**
+
+**Ventana de exposición y hora tardía** (presentación, no criterio):
+
+- Cada lectura se registra en los minutos siguientes, y su sello se publica aquí en la pasada horaria
+  (a las :07 de la hora siguiente), con un máximo de ~67 minutos de ventana.
+- La **ventana de exposición** de una lectura son los minutos entre su generación y su sello. Con la
+  tarea horaria funcionando está acotada por diseño a ~67 min (60 + 7) y no tiene umbral.
+- Una hora es **tardía** si su sello se calculó más de 15 min después de terminar. Es un indicador
+  del funcionamiento de la tarea horaria, **no un criterio de validez**: la validez la decide solo la
+  regla de anclaje. Las horas 00:00–04:00 del 04/11 son tardías (304 a 64 min) y no contenían
+  ninguna lectura.
+
+> **Corrección (05/11).** La frase publicada en `1f865dc` («las lecturas de esas horas no cuentan como
+> ancladas antes de su resultado a 4 h») **era incorrecta**: la regla sellada
+> `cl-anchor-before-outcome-v1` **nunca tuvo un corte por activación** y se aplica igual a toda
+> lectura.
+>
+> Caso que lo muestra: la lectura técnica de las 05:01 UTC del 04/11.
+> - Su hora se selló a las 06:04, 4 min después de terminar, así que no es tardía; su ventana de
+>   exposición fue de 63 min.
+> - Quedó anclada en Bitcoin a las 06:22.
+> - **Cumple** la regla: 06:22 + 2 h = 08:22, antes de 05:01 + 4 h = 09:01.
+>
+> La regla no ha cambiado.
 
 ## Regla «anclada antes del resultado» (`cl-anchor-before-outcome-v1`)
 
@@ -340,9 +363,10 @@ corrigen con commits nuevos y se anotan aquí.
 | 2026-11-04 05:12 | `1443236` | README: verificación en el navegador y script alternativo |
 | 2026-11-04 05:13 | **`06f269b`** | **Retirado `seals/2026-11-03.json.ots.bak`.** Desde aquí la rutina solo publica `README.md`, `seals/*.json` y `seals/*.json.ots`. El `.bak` sigue visible en el historial de `b0ebfac`, **intencionadamente: no se reescribe el historial** |
 | 2026-11-04 05:22 | `3760733` | Registro de cambios y regla `cl-anchor-before-outcome-v1` anunciada por su hash |
-| 2026-11-04 06:04 | `6dee929` | **Primeros sellos horarios**: 04/11, de 00:00 a 05:00, sellados con retraso porque son anteriores a la activación |
+| 2026-11-04 06:04 | `6dee929` | **Primeros sellos horarios**: 04/11, de 00:00 a 05:00, sellados todos en esta pasada |
 | 2026-11-04 06:1x | `52082f4` | README: sellos horarios, diario v2 y texto completo de la regla |
 | 2026-11-04 10:07 | — | **Subida fallida** durante la incidencia de GitHub en operaciones Git (09:49–11:30 UTC). El commit de los sellos de las 10:07 (`bf22811`) llegó con el de las 11:07 (`333164c`). No se perdió ni cambió ningún sello. La vigilancia P4-H lo contó como desincronía a las 10:20 (real) y a las 11:20 (error de medición: la consulta falló y no guardaba el mensaje de error) |
 | 2026-11-04 16:29 | `659ef24` | Primera adenda: `adendas/2026-11-04_p4h_despliegue_c0.json` (hash `5f69062e…` de la adenda P4-H, sellada a las 15:35:52) y su `.ots`. Este commit lleva otro autor (`cryptolab-ledger`) que los sellos automáticos (`cryptolab-ledger-seals`) porque se hizo a mano; el contenido es el mismo tipo de fichero permitido |
 | 2026-11-04 17:07 | **`c770e72`** | **Error: la rutina de sellos retiró `adendas/`**, porque solo conserva `README.md` y `seals/`. La adenda sigue en `659ef24` (ver «Adendas y cadena canónica»). Se corrige con el cambio A0 |
-| 2026-11-04 18:4x | (este) | README: adendas, cadena canónica, la retirada de `c770e72` y el preregistro de P4-H2 |
+| 2026-11-04 18:4x | `1f865dc` | README: adendas, cadena canónica, la retirada de `c770e72` y el preregistro de P4-H2 |
+| 2026-11-05 04:5x | (este) | **Corrección**: la frase de `1f865dc` sobre las horas 00:00–05:00 del 04/11 era incorrecta (la regla nunca tuvo un corte por activación). Se añaden la ventana de exposición y la hora tardía, como presentación |
