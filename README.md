@@ -391,8 +391,9 @@ corrigen con commits nuevos y se anotan aquí.
 | 2026-11-04 18:41 | `1f865dc` | cryptolab-ledger | README: adendas (retiradas por c770e72, siguen en 659ef24), cadena canonica y preregistro P4-H2 | README.md |
 | 2026-11-05 04:46 | `fc689dc` | cryptolab-ledger-seals | README: corrección de la frase de 1f865dc (la regla nunca tuvo corte por activación), ventana de exposición y hora tardía | README.md |
 | 2026-11-05 18:28 | `a6745f4` | cryptolab-ledger-seals | README: registro de proceso (copia literal del apartado de la bitácora pública sobre la prueba de C0b v1.2, que falló); la bitácora completa se publicará tras la revisión legal | README.md |
+| 2026-11-05 18:51 | `0fd7f8a` | cryptolab-ledger-seals | README: registro de cambios generado desde git log, notas sobre el historial y guía (el hash se comprueba sobre el raw, no sobre un checkout) | README.md |
 
-*Generado desde `git log` (UTC) hasta el commit `a6745f4`. Los commits posteriores, incluido el que publica esta tabla, salen en la siguiente generación y en el historial de git.*
+*Generado desde `git log` (UTC) hasta el commit `0fd7f8a`. Los commits posteriores, incluido el que publica esta tabla, salen en la siguiente generación y en el historial de git.*
 
 ### Notas sobre el historial
 
