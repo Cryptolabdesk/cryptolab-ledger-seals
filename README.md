@@ -168,6 +168,12 @@ Ejemplo con el sello del **03/11/2026**. Hay tres formas de verificar el anclaje
 - **B. Con la línea de comandos** de OpenTimestamps.
 - **C. Con un script de Python**, si la línea de comandos no arranca, por ejemplo en Windows.
 
+**Calcula siempre el hash sobre el fichero *raw* de GitHub** (*Download raw file*, o una URL de
+`raw.githubusercontent.com`, mejor con el commit en lugar de `main`), **nunca sobre una copia hecha con
+`git clone`**. Según tu configuración de git (`core.autocrlf`, activado por defecto en Git para Windows),
+el checkout puede cambiar los saltos de línea, y entonces el hash no coincide aunque el fichero publicado
+sea el correcto.
+
 ### A. Verificación en el navegador (opentimestamps.org)
 
 1. Descarga los dos ficheros desde GitHub: abre cada uno y pulsa *Download raw file*.
@@ -371,20 +377,38 @@ el 2026-11-05 a las 18:26:42 UTC). **La bitácora completa se publicará tras la
 Este repositorio **no reescribe su historial**: ni force-push ni commits borrados. Los errores se
 corrigen con commits nuevos y se anotan aquí.
 
-| Fecha (UTC) | Commit | Cambio |
-|---|---|---|
-| 2026-11-04 03:42 | `e0453a5` | README inicial |
-| 2026-11-04 03:43 | `c040301` | Primer sello (`2026-11-03`), con su `.ots` pendiente de Bitcoin |
-| 2026-11-04 04:29 | `0a4cb14` | README: cómo verificar |
-| 2026-11-04 04:33 | `b0ebfac` | `.ots` del 03/11 completado: bloques 974 473 y 974 476. **Error**: subió también `seals/2026-11-03.json.ots.bak`, la copia que `ots upgrade` deja del `.ots` pendiente anterior. No contenía datos, solo esa prueba antigua |
-| 2026-11-04 05:12 | `1443236` | README: verificación en el navegador y script alternativo |
-| 2026-11-04 05:13 | **`06f269b`** | **Retirado `seals/2026-11-03.json.ots.bak`.** Desde aquí la rutina solo publica `README.md`, `seals/*.json` y `seals/*.json.ots`. El `.bak` sigue visible en el historial de `b0ebfac`, **intencionadamente: no se reescribe el historial** |
-| 2026-11-04 05:22 | `3760733` | Registro de cambios y regla `cl-anchor-before-outcome-v1` anunciada por su hash |
-| 2026-11-04 06:04 | `6dee929` | **Primeros sellos horarios**: 04/11, de 00:00 a 05:00, sellados todos en esta pasada |
-| 2026-11-04 06:1x | `52082f4` | README: sellos horarios, diario v2 y texto completo de la regla |
-| 2026-11-04 10:07 | — | **Subida fallida** durante la incidencia de GitHub en operaciones Git (09:49–11:30 UTC). El commit de los sellos de las 10:07 (`bf22811`) llegó con el de las 11:07 (`333164c`). No se perdió ni cambió ningún sello. La vigilancia P4-H lo contó como desincronía a las 10:20 (real) y a las 11:20 (error de medición: la consulta falló y no guardaba el mensaje de error) |
-| 2026-11-04 16:29 | `659ef24` | Primera adenda: `adendas/2026-11-04_p4h_despliegue_c0.json` (hash `5f69062e…` de la adenda P4-H, sellada a las 15:35:52) y su `.ots`. Este commit lleva otro autor (`cryptolab-ledger`) que los sellos automáticos (`cryptolab-ledger-seals`) porque se hizo a mano; el contenido es el mismo tipo de fichero permitido |
-| 2026-11-04 17:07 | **`c770e72`** | **Error: la rutina de sellos retiró `adendas/`**, porque solo conserva `README.md` y `seals/`. La adenda sigue en `659ef24` (ver «Adendas y cadena canónica»). Se corrige con el cambio A0 |
-| 2026-11-04 18:4x | `1f865dc` | README: adendas, cadena canónica, la retirada de `c770e72` y el preregistro de P4-H2 |
-| 2026-11-05 04:46 | `fc689dc` | **Corrección**: la frase de `1f865dc` sobre las horas 00:00–05:00 del 04/11 era incorrecta (la regla nunca tuvo un corte por activación). Se añaden la ventana de exposición y la hora tardía, como presentación |
-| 2026-11-05 18:2x | (este) | Nueva sección «Registro de proceso»: copia literal del apartado de la bitácora pública sobre la prueba de C0b v1.2 (falló; esa versión no se despliega). La bitácora completa se publicará tras la revisión legal |
+| Fecha (UTC) | Commit | Autor | Asunto (literal de git) | Cambios que no son rutina |
+|---|---|---|---|---|
+| 2026-11-04 03:42 | `e0453a5` | cryptolab-ledger-seals | README | A README.md |
+| 2026-11-04 04:29 | `0a4cb14` | cryptolab-ledger-seals | README: cómo verificar y qué contiene el sello | README.md |
+| 2026-11-04 04:33 | `b0ebfac` | cryptolab-ledger-seals | sellos 2026-11-04 04:33 UTC | A seals/2026-11-03.json.ots.bak |
+| 2026-11-04 05:12 | `1443236` | cryptolab-ledger-seals | README: verificación en el navegador (opentimestamps.org) y script alternativo | README.md |
+| 2026-11-04 05:13 | `06f269b` | cryptolab-ledger-seals | sellos 2026-11-04 05:13 UTC | D seals/2026-11-03.json.ots.bak |
+| 2026-11-04 05:23 | `3760733` | cryptolab-ledger-seals | README: registro de cambios (06f269b, historial sin reescribir) y regla de anclaje anunciada | README.md |
+| 2026-11-04 06:05 | `52082f4` | cryptolab-ledger-seals | README: sellos horarios, diario v2 y regla de anclaje completa | README.md |
+| 2026-11-04 16:29 | `659ef24` | cryptolab-ledger | adenda P4-H: hash de ADENDA_P4_DESPLIEGUE_C0.md (cambio de versión del Técnico declarado antes) | A adendas/2026-11-04_p4h_despliegue_c0.json, A adendas/2026-11-04_p4h_despliegue_c0.json.ots |
+| 2026-11-04 17:07 | `c770e72` | cryptolab-ledger-seals | sellos 2026-11-04 17:07 UTC | D adendas/2026-11-04_p4h_despliegue_c0.json, D adendas/2026-11-04_p4h_despliegue_c0.json.ots |
+| 2026-11-04 18:41 | `1f865dc` | cryptolab-ledger | README: adendas (retiradas por c770e72, siguen en 659ef24), cadena canonica y preregistro P4-H2 | README.md |
+| 2026-11-05 04:46 | `fc689dc` | cryptolab-ledger-seals | README: corrección de la frase de 1f865dc (la regla nunca tuvo corte por activación), ventana de exposición y hora tardía | README.md |
+| 2026-11-05 18:28 | `a6745f4` | cryptolab-ledger-seals | README: registro de proceso (copia literal del apartado de la bitácora pública sobre la prueba de C0b v1.2, que falló); la bitácora completa se publicará tras la revisión legal | README.md |
+
+*Generado desde `git log` (UTC) hasta el commit `a6745f4`. Los commits posteriores, incluido el que publica esta tabla, salen en la siguiente generación y en el historial de git.*
+
+### Notas sobre el historial
+
+Las filas de arriba salen de `git log`. Estas notas explican algunas; no sustituyen al historial.
+
+- `c040301` (2026-11-04 03:43): primer sello (`2026-11-03`), con su `.ots` pendiente de Bitcoin. Es un commit de rutina y por eso no sale en la tabla.
+- `b0ebfac`: `.ots` del 03/11 completado (bloques 974 473 y 974 476). **Error**: subió también `seals/2026-11-03.json.ots.bak`, la copia que `ots upgrade` deja del `.ots` pendiente anterior. No contenía datos, solo esa prueba antigua.
+- `06f269b`: **retirado `seals/2026-11-03.json.ots.bak`.** Desde aquí la rutina solo publica `README.md`, `seals/*.json` y `seals/*.json.ots`. El `.bak` sigue visible en el historial de `b0ebfac`, **intencionadamente: no se reescribe el historial**.
+- `6dee929` (2026-11-04 06:04): **primeros sellos horarios** (04/11, de 00:00 a 05:00, sellados todos en esta pasada). Es rutina.
+- 2026-11-04 10:07: **subida fallida** durante la incidencia de GitHub en operaciones Git (09:49–11:30 UTC). El commit de los sellos de las 10:07 (`bf22811`) llegó con el de las 11:07 (`333164c`). No se perdió ni cambió ningún sello. La vigilancia P4-H lo contó como desincronía a las 10:20 (real) y a las 11:20 (error de medición: la consulta falló y no guardaba el mensaje de error).
+- **Autor distinto en `659ef24` y `1f865dc`:** llevan `cryptolab-ledger <ledger@cryptolabdesk.invalid>`, y el resto de
+  commits `cryptolab-ledger-seals <ledger-seals@users.noreply.github.com>`. Los dos se hicieron a mano el 04/11, fuera
+  de la rutina automática, y quien los hizo configuró en el commit esa identidad de git en lugar de la de la rutina.
+  No es otra cuenta: el push salió del mismo repositorio y con la misma clave de despliegue.
+- `c770e72`: **error: la rutina de sellos retiró `adendas/`**, porque solo conserva `README.md` y `seals/`. La adenda sigue en `659ef24` (ver «Adendas y cadena canónica»). Se corrige con el cambio A0.
+- `fc689dc`: **corrección**: la frase de `1f865dc` sobre las horas 00:00–05:00 del 04/11 era incorrecta (la regla nunca tuvo un corte por activación). Se añaden la ventana de exposición y la hora tardía, como presentación.
+- **Las filas anteriores a este commit se escribieron a mano, con hora aproximada** (por ejemplo «06:1x», «18:4x»
+  o «04:5x»). **Desde este commit, la tabla sale de `git log`**: se genera después de cada commit, en la misma
+  pasada que la verificación por hash.
