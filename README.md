@@ -404,8 +404,10 @@ corrigen con commits nuevos y se anotan aquí.
 | 2026-11-05 04:46 | `fc689dc` | cryptolab-ledger-seals | README: corrección de la frase de 1f865dc (la regla nunca tuvo corte por activación), ventana de exposición y hora tardía | README.md |
 | 2026-11-05 18:28 | `a6745f4` | cryptolab-ledger-seals | README: registro de proceso (copia literal del apartado de la bitácora pública sobre la prueba de C0b v1.2, que falló); la bitácora completa se publicará tras la revisión legal | README.md |
 | 2026-11-05 18:51 | `0fd7f8a` | cryptolab-ledger-seals | README: registro de cambios generado desde git log, notas sobre el historial y guía (el hash se comprueba sobre el raw, no sobre un checkout) | README.md |
+| 2026-11-05 18:51 | `b6ee59f` | cryptolab-ledger-seals | README: registro de cambios regenerado desde git log tras 0fd7f8a | README.md |
+| 2026-11-05 19:48 | `2bce0a1` | cryptolab-ledger-seals | README: corrección del apartado de proceso de C0b v1.2 (mempool: el dato estaba en el corte pero no llegaba al agente; reemplaza la frase de a6745f4), adenda 1 de P4-H2 y aclaración del hash de la bitácora (fichero interno aún no público) | README.md |
 
-*Generado desde `git log` (UTC) hasta el commit `0fd7f8a`. Los commits posteriores, incluido el que publica esta tabla, salen en la siguiente generación y en el historial de git.*
+*Generado desde `git log` (UTC) hasta el commit `2bce0a1`. Los commits posteriores, incluido el que publica esta tabla, salen en la siguiente generación y en el historial de git.*
 
 ### Notas sobre el historial
 
