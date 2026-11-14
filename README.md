@@ -414,8 +414,10 @@ corrigen con commits nuevos y se anotan aquí.
 | 2026-11-05 18:51 | `0fd7f8a` | cryptolab-ledger-seals | README: registro de cambios generado desde git log, notas sobre el historial y guía (el hash se comprueba sobre el raw, no sobre un checkout) | README.md |
 | 2026-11-05 18:51 | `b6ee59f` | cryptolab-ledger-seals | README: registro de cambios regenerado desde git log tras 0fd7f8a | README.md |
 | 2026-11-05 19:48 | `2bce0a1` | cryptolab-ledger-seals | README: corrección del apartado de proceso de C0b v1.2 (mempool: el dato estaba en el corte pero no llegaba al agente; reemplaza la frase de a6745f4), adenda 1 de P4-H2 y aclaración del hash de la bitácora (fichero interno aún no público) | README.md |
+| 2026-11-05 19:48 | `ed0fd7a` | cryptolab-ledger-seals | README: registro de cambios regenerado desde git log tras 2bce0a1 | README.md |
+| 2026-11-14 04:28 | `084f449` | cryptolab-ledger-seals | README: aviso de resultados pasados, hash anclado de SELLOS.txt (824e2c99, bloque 974635), nota de sustancia de 2bce0a1; sin menciones a revisión legal pendiente (cerrada el 06/11) | README.md |
 
-*Generado desde `git log` (UTC) hasta el commit `2bce0a1`. Los commits posteriores, incluido el que publica esta tabla, salen en la siguiente generación y en el historial de git.*
+*Generado desde `git log` (UTC) hasta el commit `084f449`. Los commits posteriores, incluido el que publica esta tabla, salen en la siguiente generación y en el historial de git.*
 
 ### Notas sobre el historial
 
