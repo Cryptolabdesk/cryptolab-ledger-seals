@@ -49,8 +49,12 @@ El repositorio contiene **solo** estos ficheros:
 
 Las adendas y los criterios internos se encadenan en un registro propio, `SELLOS.txt`. Cada
 bloque nuevo lleva el sha256 de todo lo anterior, de modo que reescribir un bloque viejo rompe la
-cadena. Ese registro no se publica, pero el hash de cada adenda que afecta a lo que se publica aquí
-va a `adendas/` y se ancla en Bitcoin con su `.ots`.
+cadena. Ese registro todavía no se publica (se publicará más adelante), pero el hash de cada adenda que
+afecta a lo que se publica aquí va a `adendas/` y se ancla en Bitcoin con su `.ots`.
+
+**Hash de `SELLOS.txt`.** Desde el 05/11/2026 el propio registro se ancla en Bitcoin. Versión anclada más
+reciente: `824e2c9961a622776941359c7c2308dc365e094932e6274908423d7175394116` (38 148 B), en el bloque
+**974 635** (2026-11-05 07:19:14 UTC). Su `.ots` se publicará junto con el registro.
 
 | Adenda | sha256 del documento | Dónde está | Qué declara |
 |---|---|---|---|
@@ -357,12 +361,16 @@ se pueden comprobar los pasos 2 a 4, pero no los digests.
 
 ## Registro de proceso
 
+> **Aviso:** los resultados históricos mostrados describen lecturas ya publicadas y su comparación con
+> el precio posterior. No garantizan ni aseguran resultados futuros. Toda la información de esta sección
+> es estrictamente informativa y no constituye asesoramiento ni oferta de inversión.
+
 Lo que no salió bien en nuestras pruebas, contado aunque no nos favorezca. Es una copia **literal**
 de un apartado de nuestra bitácora pública, `publico/BITACORA_PUBLICA.md`. Ese fichero es interno y
 todavía no es público; su sha256 sirve para comprobar después que lo publicado no cambió:
 `a6e135a1915a8ac721e3814df0242ac1bc7ae39b70b36b5c3d8eec63b7cad684`, sellado en nuestra cadena interna el 2026-11-05 a las 19:47:59 UTC. La versión anterior del
 apartado (bitácora `5d19e28ad8763ab9f756f64ad68a6aa2b1d285242e40bb6e3a69584c72131774`, publicada en
-`a6745f4`) queda en el historial. **La bitácora completa se publicará tras la revisión legal.**
+`a6745f4`) queda en el historial. **La bitácora completa se publicará más adelante.**
 
 - **La prueba de C0b v1.2 (adenda 2, 05/11/2026) falló, y esa versión no se despliega.** Se hizo en
   corridas de prueba, sin publicar nada. La revisó a ciegas un lector independiente (otro modelo), que
@@ -424,6 +432,14 @@ Las filas de arriba salen de `git log`. Estas notas explican algunas; no sustitu
   No es otra cuenta: el push salió del mismo repositorio y con la misma clave de despliegue.
 - `c770e72`: **error: la rutina de sellos retiró `adendas/`**, porque solo conserva `README.md` y `seals/`. La adenda sigue en `659ef24` (ver «Adendas y cadena canónica»). Se corrige con el cambio A0.
 - `fc689dc`: **corrección**: la frase de `1f865dc` sobre las horas 00:00–05:00 del 04/11 era incorrecta (la regla nunca tuvo un corte por activación). Se añaden la ventana de exposición y la hora tardía, como presentación.
+- `2bce0a1`: corrige el apartado de C0b v1.2 publicado en `a6745f4`. La bitácora pasa de `5d19e28a…` a `a6e135a1…`. Cambios de sustancia:
+  - **«3 de los 7»**: antes, «Sí lo tuvieron 3 de los 7 textos de producción usados como comparación». Ahora se añade que **2 de esos 3 casos** se eligieron justamente por haber publicado ese error, así que no es una tasa.
+  - **Quién hizo la lectura que dio el FAIL**: antes, «un lector independiente». Ahora, «un lector independiente (**otro modelo**)».
+  - **Mempool**: antes, «daba por ausentes las comisiones de la mempool, que sí estaban en los datos». Ahora, estaban en el corte, pero ese agente no los recibía, por un defecto de construcción nuestro.
+  - **Signo**: antes, «no tuvieron ningún error de signo». Ahora, «tras el filtro»: el filtro quitó uno que había escrito el modelo.
+  - **Se añaden** dos cosas:
+    - que la v1.1 también falló la revisión independiente y que nuestra primera revisión no lo detectó;
+    - la desviación de proceso: no quedó registrado el orden de entrega de los paquetes, y eso no cambia el veredicto.
 - **Las filas anteriores a este commit se escribieron a mano, con hora aproximada** (por ejemplo «06:1x», «18:4x»
   o «04:5x»). **Desde este commit, la tabla sale de `git log`**: se genera después de cada commit, en la misma
   pasada que la verificación por hash.
